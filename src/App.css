@@ -37,8 +37,10 @@ body {
 }
 
 .input-container {
+  position: relative;
   width: 400px;
   margin: 0 auto;
+  text-align: left;
 }
 
 .word-input {
@@ -117,19 +119,69 @@ body {
   margin: 0.5rem 0 1rem;
   color: #555;
 }
-  margin-top: 6rem;
-  padding: 2.5rem 0 3rem;
-  background: #f4f6f8;
-  border-top: 1px solid #e2e3e5;
-  font-size: 0.9rem;
-  color: #555;
+
+.matches-table {
+  width: 100%;
+  margin-top: 0.5rem;
+  border-collapse: collapse;
+  text-align: left;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
-.site-footer a {
-  color: #3a6bff;
-  text-underline-offset: 2px;
+.matches-table tr:first-child {
+  background: #f0f4ff;
+  border-bottom: 2px solid var(--primary);
+  font-weight: 600;
+  font-size: 1.1em;
 }
 
-.site-footer a:hover {
-  text-decoration-thickness: 2px;
+.matches-table tr:first-child td {
+  padding-top: 0.8rem;
+  padding-bottom: 0.8rem;
+}
+
+.matches-table tr {
+  border-bottom: 1px solid var(--border);
+}
+
+.matches-table tr:last-child {
+  border-bottom: none;
+}
+
+.matches-table td {
+  padding: 0.5rem 1rem;
+}
+
+.check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+}
+
+.check svg {
+  width: 14px;
+  height: 14px;
+}
+
+.check.valid {
+  background: #e6ffed;
+  color: #1a7f37;
+}
+
+.check.invalid {
+  background: #ffebeb;
+  color: #d0332b;
+}
+
+.check-column {
+  width: 2rem;
+  text-align: center;
+  color: var(--gray);
 }
