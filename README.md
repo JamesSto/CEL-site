@@ -17,3 +17,4 @@ https://github.com/Fj00/CEL
 * "Not a common word" "should be a common word" features
 * Scrabble dictionary check
 * Merriam Webster definition check
+* Wordnik API for the 2 above?

@@ -43,21 +43,23 @@ function App() {
             Check if your word is in the Common English Lexicon
           </p>
 
-          <input
-            ref={inputRef}
-            className="word-input"
-            type="text"
-            placeholder="Type a word…"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            autoComplete="off"
-          />
+          <div className="input-container">
+            <input
+              ref={inputRef}
+              className="word-input"
+              type="text"
+              placeholder="Type a word…"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              autoComplete="off"
+            />
 
-          {isValid !== null && (
-            <p className={`badge ${isValid ? "valid" : "invalid"}`}>
-              {isValid ? "✓ Word found" : "✕ Not in CEL"}
-            </p>
-          )}
+            {isValid !== null && (
+              <p className={`badge ${isValid ? "valid" : "invalid"}`}>
+                {isValid ? "✓ Found" : "✕ Not in CEL"}
+              </p>
+            )}
+          </div>
         </div>
       </main>
 
