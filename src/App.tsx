@@ -65,17 +65,24 @@ function App() {
 
       <footer className="site-footer">
         <div className="site-max">
-          <small>
-            Word list from the{" "}
-            <a
-              href="https://github.com/Fj00/CEL"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              CEL&nbsp;project
-            </a>
-            . Site demo built with Vite + React.
-          </small>
+          <div className="faq">
+            <h2>FAQ</h2>
+            <dl>
+              <dt>What is this list?</dt>
+              <dd>
+                This checks the <a href="https://github.com/Fj00/CEL">Common English Lexicon</a>, an amazing word list created by created by Eric Smith and Kenji Matsumoto. It's a subset of the Scrabble word list that contains words that are in common English usage, unlike the Scrabble dictionary (mostly) contains esoterica.
+              </dd>
+
+              <dt>What's this for?</dt>
+              <dd>
+                Anyone who wants to ask "Is this really a word", and only get a yes if it's a word that's in common English usage. Maybe you want to play Scrabble and not run the risk of a challenge failing because that random 4 letters someone put down is an <a href="https://www.merriam-webster.com/dictionary/cuif">obscure alternate spelling of a Scottish insult</a>.
+              </dd>
+              <dt>How was it made?</dt>
+              <dd>
+                <a href="https://github.com/Fj00/CEL">Check out the Github page to learn more</a>. I'm unaffiliated with the project, just a fan who wanted this site to exist.
+              </dd>
+            </dl>
+          </div>
         </div>
       </footer>
     </>

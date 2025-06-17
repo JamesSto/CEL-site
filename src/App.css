@@ -94,29 +94,29 @@ body {
 .site-footer a:hover {
   text-decoration-thickness: 2px;
 }
+
 /* ----------------------------------------
-   Footer
+   FAQ
    ---------------------------------------- */
-.site-footer {
-  margin-top: 6rem;
-  padding: 2.5rem 0 3rem;
-  background: #f4f6f8;
-  border-top: 1px solid #e2e3e5;
-  font-size: 0.9rem;
+.faq {
+  margin-bottom: 2rem;
+  text-align: left;
+}
+
+.faq h2 {
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+}
+
+.faq dt {
+  font-weight: 600;
+  margin-top: 1rem;
+}
+
+.faq dd {
+  margin: 0.5rem 0 1rem;
   color: #555;
 }
-
-.site-footer a {
-  color: #3a6bff;
-  text-underline-offset: 2px;
-}
-
-.site-footer a:hover {
-  text-decoration-thickness: 2px;
-}
-   Footer
-   ---------------------------------------- */
-.site-footer {
   margin-top: 6rem;
   padding: 2.5rem 0 3rem;
   background: #f4f6f8;
