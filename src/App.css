@@ -27,7 +27,7 @@ body {
 }
 
 .hero {
-  padding: 4rem 0;
+  padding: 2rem 0;
   text-align: center;
 }
 
@@ -80,7 +80,7 @@ body {
    Footer
    ---------------------------------------- */
 .site-footer {
-  margin-top: 6rem;
+  margin-top: 0rem;
   padding: 2.5rem 0 3rem;
   background: #f4f6f8;
   border-top: 1px solid #e2e3e5;
@@ -132,14 +132,14 @@ body {
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
-.matches-table tr:first-child {
+.matches-table:not(.suggestions-table) tr:first-child {
   background: #f0f4ff;
   border-bottom: 2px solid var(--primary);
   font-weight: 600;
   font-size: 1.1em;
 }
 
-.matches-table tr:first-child td {
+.matches-table:not(.suggestions-table) tr:first-child td {
   padding-top: 0.8rem;
   padding-bottom: 0.8rem;
 }
@@ -184,4 +184,21 @@ body {
   width: 2rem;
   text-align: center;
   color: var(--gray);
+}
+
+/* ----------------------------------------
+   Suggestions
+   ---------------------------------------- */
+.suggestions {
+  margin-top: 1.5rem;
+}
+
+.suggestions h3 {
+  font-size: 1.1rem;
+  color: #666;
+  margin-bottom: 0.5rem;
+}
+
+.suggestions-table {
+  opacity: 0.9;
 }

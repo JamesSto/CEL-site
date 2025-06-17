@@ -1,50 +1,71 @@
 import { useEffect, useState, useRef } from "react";
 import { CheckIcon, XMarkIcon } from "@heroicons/react/20/solid";
+import { distance } from "fastest-levenshtein";
 import "./App.css";
+
+const NUM_AUTOCOMPLETES = 10;
+const NUM_SUGGESTIONS = 5;
 
 function App() {
   const [lexicon, setLexicon] = useState<Set<string> | null>(null);
+  const [firstLetterMap, setFirstLetterMap] = useState<Map<string, Set<string>> | null>(null);
   const [input, setInput] = useState("");
-  const [isValid, setIsValid] = useState<boolean | null>(null);
-  const [matches, setMatches] = useState<string[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     fetch("/cel.txt")
       .then((r) => r.text())
       .then((t) => {
-        const set = new Set(
-          t
-            .split("\n")
-            .map((w) => w.trim().toLowerCase())
-            .filter(Boolean),
-        );
+        const words = t
+          .split("\n")
+          .map((w) => w.trim().toLowerCase())
+          .filter(Boolean);
+
+        // Create main lexicon
+        const set = new Set(words);
         setLexicon(set);
+
+        // Create first-letter map
+        const letterMap = new Map<string, Set<string>>();
+        words.forEach(word => {
+          const firstLetter = word[0];
+          if (!letterMap.has(firstLetter)) {
+            letterMap.set(firstLetter, new Set());
+          }
+          letterMap.get(firstLetter)!.add(word);
+        });
+        setFirstLetterMap(letterMap);
+
         inputRef.current?.focus();
       })
-      .catch((e) => console.error("Couldn’t load CEL:", e));
+      .catch((e) => console.error("Couldn't load CEL:", e));
   }, []);
 
-  useEffect(() => {
-    if (!lexicon) return;
-    if (input === "") setIsValid(null);
-    else setIsValid(lexicon.has(input.toLowerCase()));
-  }, [input, lexicon]);
+  // Calculate values directly instead of using state/effects
+  const prefix = input.toLowerCase();
+  const isValid = input === "" ? null : lexicon?.has(prefix) ?? false;
 
-  useEffect(() => {
-    if (!lexicon || !input) {
-      setMatches([]);
-      return;
-    }
+  const matches =
+    !lexicon || !input
+      ? []
+      : Array.from(lexicon)
+          .filter((word) => word.startsWith(prefix))
+          .slice(0, NUM_AUTOCOMPLETES)
+          .sort();
 
-    const prefix = input.toLowerCase();
-    const results = Array.from(lexicon)
-      .filter((word) => word.startsWith(prefix))
-      .slice(0, 10)
-      .sort();
-
-    setMatches(results);
-  }, [input, lexicon]);
+  const suggestions =
+    !lexicon || !firstLetterMap || !input || matches.length > 3 || isValid
+      ? []
+      : Array.from(firstLetterMap.get(prefix[0]) ?? [])
+          .filter(word => !matches.includes(word)) // Remove words already in matches
+          .map((word) => ({
+            word,
+            distance: distance(prefix, word) / prefix.length,
+          }))
+          .filter(({ distance }) => distance < 0.4)
+          .sort((a, b) => a.distance - b.distance)
+          .slice(0, NUM_SUGGESTIONS)
+          .map(({ word }) => word);
 
   return (
     <>
@@ -72,28 +93,50 @@ function App() {
             />
 
             {input && (
-              <table className="matches-table">
-                <tbody>
-                  <tr>
-                    <td>{input}</td>
-                    <td className="check-column">
-                      <span className={isValid ? "check valid" : "check invalid"}>
-                        {isValid ? <CheckIcon /> : <XMarkIcon />}
-                      </span>
-                    </td>
-                  </tr>
-                  {matches.map((word) => (
-                    <tr key={word}>
-                      <td>{word}</td>
+              <>
+                <table className="matches-table">
+                  <tbody>
+                    <tr>
+                      <td>{input}</td>
                       <td className="check-column">
-                        <span className="check valid">
-                          <CheckIcon />
+                        <span className={isValid ? "check valid" : "check invalid"}>
+                          {isValid ? <CheckIcon /> : <XMarkIcon />}
                         </span>
                       </td>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                    {matches.map((word) => (
+                      <tr key={word}>
+                        <td>{word}</td>
+                        <td className="check-column">
+                          <span className="check valid">
+                            <CheckIcon />
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+
+                {suggestions.length > 0 && (
+                  <div className="suggestions">
+                    <h3>Maybe you meant</h3>
+                    <table className="matches-table suggestions-table">
+                      <tbody>
+                        {suggestions.map((word) => (
+                          <tr key={word}>
+                            <td>{word}</td>
+                            <td className="check-column">
+                              <span className="check valid">
+                                <CheckIcon />
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>
