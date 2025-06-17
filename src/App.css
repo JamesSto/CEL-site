@@ -156,6 +156,29 @@ body {
   padding: 0.5rem 1rem;
 }
 
+.matches-table td a {
+  color: inherit;
+  text-decoration: none;
+  position: relative;
+  display: inline-block;
+  padding: 2px 0;
+}
+
+.matches-table td a::after {
+  content: "↗";
+  font-size: 0.8em;
+  margin-left: 4px;
+  opacity: 0.3;
+}
+
+.matches-table td a:hover {
+  color: var(--primary);
+}
+
+.matches-table td a:hover::after {
+  opacity: 1;
+}
+
 .check {
   display: flex;
   align-items: center;

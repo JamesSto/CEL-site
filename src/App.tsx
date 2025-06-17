@@ -49,23 +49,26 @@ function App() {
     !lexicon || !input
       ? []
       : Array.from(lexicon)
-          .filter((word) => word.startsWith(prefix))
-          .slice(0, NUM_AUTOCOMPLETES)
-          .sort();
+        .filter((word) => word.startsWith(prefix))
+        .slice(0, NUM_AUTOCOMPLETES)
+        .sort();
 
   const suggestions =
     !lexicon || !firstLetterMap || !input || matches.length > 3 || isValid
       ? []
       : Array.from(firstLetterMap.get(prefix[0]) ?? [])
-          .filter(word => !matches.includes(word)) // Remove words already in matches
-          .map((word) => ({
-            word,
-            distance: distance(prefix, word) / prefix.length,
-          }))
-          .filter(({ distance }) => distance < 0.4)
-          .sort((a, b) => a.distance - b.distance)
-          .slice(0, NUM_SUGGESTIONS)
-          .map(({ word }) => word);
+        .filter(word => !matches.includes(word)) // Remove words already in matches
+        .map((word) => ({
+          word,
+          distance: distance(prefix, word) / prefix.length,
+        }))
+        .filter(({ distance }) => distance < 0.4)
+        .sort((a, b) => a.distance - b.distance)
+        .slice(0, NUM_SUGGESTIONS)
+        .map(({ word }) => word);
+
+  const makeScrabbleLink = (word: string) =>
+    `https://scrabble.merriam.com/finder/${word}`;
 
   return (
     <>
@@ -97,7 +100,11 @@ function App() {
                 <table className="matches-table">
                   <tbody>
                     <tr>
-                      <td>{input}</td>
+                      <td>
+                        <a href={makeScrabbleLink(input)} target="_blank" rel="noopener">
+                          {input}
+                        </a>
+                      </td>
                       <td className="check-column">
                         <span className={isValid ? "check valid" : "check invalid"}>
                           {isValid ? <CheckIcon /> : <XMarkIcon />}
@@ -106,7 +113,11 @@ function App() {
                     </tr>
                     {matches.map((word) => (
                       <tr key={word}>
-                        <td>{word}</td>
+                        <td>
+                          <a href={makeScrabbleLink(word)} target="_blank" rel="noopener">
+                            {word}
+                          </a>
+                        </td>
                         <td className="check-column">
                           <span className="check valid">
                             <CheckIcon />
@@ -124,7 +135,11 @@ function App() {
                       <tbody>
                         {suggestions.map((word) => (
                           <tr key={word}>
-                            <td>{word}</td>
+                            <td>
+                              <a href={makeScrabbleLink(word)} target="_blank" rel="noopener">
+                                {word}
+                              </a>
+                            </td>
                             <td className="check-column">
                               <span className="check valid">
                                 <CheckIcon />
