@@ -13,7 +13,7 @@ function App() {
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    fetch("/cel.txt")
+    fetch(`${import.meta.env.BASE_URL}cel.txt`)
       .then((r) => r.text())
       .then((t) => {
         const words = t
