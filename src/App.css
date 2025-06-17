@@ -1,0 +1,135 @@
+:root {
+  --primary: #3a6bff;
+  --border: #e2e3e5;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.5;
+  color: #222;
+}
+
+.site-max {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.site-header {
+  border-bottom: 1px solid var(--border);
+  padding: 1rem 0;
+}
+
+.brand {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.hero {
+  padding: 4rem 0;
+  text-align: center;
+}
+
+.tagline {
+  margin-bottom: 2rem;
+  color: #555;
+}
+
+.word-input {
+  width: 100%;
+  max-width: 400px;
+  padding: 0.8rem 1rem;
+  font-size: 1.1rem;
+  border: 2px solid var(--border);
+  border-radius: 6px;
+}
+
+.word-input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.badge {
+  display: inline-block;
+  margin-top: 1rem;
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  font-weight: 600;
+}
+
+.valid {
+  background: #e6ffed;
+  color: #1a7f37;
+}
+
+.invalid {
+  background: #ffebeb;
+  color: #d0332b;
+}
+
+.site-footer {
+  margin-top: 2rem;
+  padding: 2rem 0;
+  border-top: 1px solid var(--border);
+  color: #555;
+}
+.badge {
+  display: inline-block;
+  margin-top: 1rem;
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  font-weight: 600;
+}
+
+.valid {
+  background: #e6ffed;
+  color: #1a7f37;
+}
+
+.invalid {
+  background: #ffebeb;
+  color: #d0332b;
+  border: 1px solid #d0332b;
+}
+
+/* ----------------------------------------
+   Footer
+   ---------------------------------------- */
+.site-footer {
+  margin-top: 6rem;
+  padding: 2.5rem 0 3rem;
+  background: #f4f6f8;
+  border-top: 1px solid #e2e3e5;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.site-footer a {
+  color: #3a6bff;
+  text-underline-offset: 2px;
+}
+
+.site-footer a:hover {
+  text-decoration-thickness: 2px;
+}
+/* ----------------------------------------
+   Footer
+   ---------------------------------------- */
+.site-footer {
+  margin-top: 6rem;
+  padding: 2.5rem 0 3rem;
+  background: #f4f6f8;
+  border-top: 1px solid #e2e3e5;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.site-footer a {
+  color: #3a6bff;
+  text-underline-offset: 2px;
+}
+
+.site-footer a:hover {
+  text-decoration-thickness: 2px;
+}
