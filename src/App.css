@@ -16,19 +16,45 @@ body {
 }
 
 .site-header {
+  background: white;
   border-bottom: 1px solid var(--border);
-  padding: 1rem 0;
+  padding: 1.5rem 0;
+}
+
+.header-inner {
+  display: flex;
+  align-items: center;
 }
 
 .brand {
-  font-size: 1.25rem;
+  text-decoration: none;
+  color: inherit;
+}
+
+.brand h1 {
+  font-size: 1.8rem;
   font-weight: 600;
+  color: #111;
+  line-height: 1.1;
   margin: 0;
 }
 
+.brand-prefix {
+  font-size: 0.85rem;
+  font-weight: normal;
+  color: #666;
+  margin-bottom: 0.2rem;
+}
+
+.brand-desc {
+  font-size: 0.9rem;
+  color: #666;
+  margin-top: 0.4rem;
+}
+
 .hero {
-  padding: 2rem 0;
-  text-align: center;
+  padding: 2rem;
+  background: linear-gradient(to bottom, #f8faff, white);
 }
 
 .tagline {

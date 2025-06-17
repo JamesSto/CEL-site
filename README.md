@@ -8,13 +8,11 @@
 
 https://github.com/Fj00/CEL
 
-
 ## TODO Features
 
-* Word lookup
-* Anagram lookup
+* Anagram lookup?
+* Voting on "Not a common word" "should be a common word" features
 * Definition lookup
-* "Not a common word" "should be a common word" features
-* Scrabble dictionary check
-* Merriam Webster definition check
-* Wordnik API for the 2 above?
+* Wordnik API for the above? Pretty limiting rate limits
+
+* Scrabble dictionary check (Probably not feasible/legal outside of the link I already added)

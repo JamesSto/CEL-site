@@ -73,17 +73,18 @@ function App() {
   return (
     <>
       <header className="site-header">
-        <div className="site-max">
-          <h1 className="brand">Common&nbsp;English&nbsp;Lexicon&nbsp;Checker</h1>
+        <div className="site-max header-inner">
+          <a href="/" className="brand">
+            <h1>
+              Common English Lexicon
+            </h1>
+            <div className="brand-desc">The internet's list of common English words</div>
+          </a>
         </div>
       </header>
-
+      
       <main className="hero">
         <div className="site-max content">
-          <p className="tagline">
-            Check if your word is in the Common English Lexicon
-          </p>
-
           <div className="input-container">
             <input
               ref={inputRef}
@@ -190,6 +191,10 @@ function App() {
                 </a>
                 . I'm unaffiliated with the project, just a fan who wanted this
                 site to exist.
+              </dd>
+              <dt>Why doesn't it have [word]?</dt>
+              <dd>
+                Great question! Making a list like this inevitably has a million judgment calls. <a href="https://github.com/Fj00/CEL?tab=readme-ov-file#background">See the background page for more details</a>
               </dd>
             </dl>
           </div>
