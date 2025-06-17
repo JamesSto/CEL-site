@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { CheckIcon, XMarkIcon } from "@heroicons/react/20/solid";
+import { ArrowPathIcon } from "@heroicons/react/24/outline";
 import { distance } from "fastest-levenshtein";
 import "./App.css";
 
@@ -96,7 +97,14 @@ function App() {
               autoComplete="off"
             />
 
-            {input && (
+            {input && !lexicon && (
+              <div className="loading-state">
+                <ArrowPathIcon className="spin" />
+                Loading dictionary...
+              </div>
+            )}
+
+            {input && lexicon && (
               <>
                 <table className="matches-table">
                   <tbody>
