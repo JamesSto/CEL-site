@@ -13,6 +13,7 @@ https://github.com/Fj00/CEL
 * Anagram lookup?
 * Voting on "Not a common word" "should be a common word" features
 * Definition lookup
-* Wordnik API for the above? Pretty limiting rate limits
+* Use a local wiktionary dump for that?
+    * https://kaikki.org/dictionary/rawdata.html
 
 * Scrabble dictionary check (Probably not feasible/legal outside of the link I already added)
