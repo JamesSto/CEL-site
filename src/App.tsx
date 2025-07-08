@@ -15,6 +15,58 @@ function App() {
   const [input, setInput] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const updateLocalVote = (word: string, vote: 'yes' | 'no') => {
+    if (!lexicon) return;
+    
+    const normalizedWord = word.toLowerCase().trim();
+    const currentData = lexicon.get(normalizedWord);
+    
+    if (currentData) {
+      // Update existing word - handle vote changes
+      let newYesVotes = currentData.yesVotes;
+      let newNoVotes = currentData.noVotes;
+      
+      // Remove old vote if user had one
+      if (currentData.userVote === 'yes') {
+        newYesVotes = Math.max(0, newYesVotes - 1);
+      } else if (currentData.userVote === 'no') {
+        newNoVotes = Math.max(0, newNoVotes - 1);
+      }
+      
+      // Add new vote
+      if (vote === 'yes') {
+        newYesVotes += 1;
+      } else {
+        newNoVotes += 1;
+      }
+      
+      const newData = {
+        ...currentData,
+        yesVotes: newYesVotes,
+        noVotes: newNoVotes,
+        userVote: vote
+      };
+      setLexicon(new Map(lexicon.set(normalizedWord, newData)));
+    } else {
+      // Add new word that wasn't in lexicon
+      const newData = {
+        word: normalizedWord,
+        yesVotes: vote === 'yes' ? 1 : 0,
+        noVotes: vote === 'no' ? 1 : 0,
+        userVote: vote
+      };
+      setLexicon(new Map(lexicon.set(normalizedWord, newData)));
+      
+      // Also add to first letter map
+      if (firstLetterMap) {
+        const firstLetter = normalizedWord[0];
+        const letterSet = firstLetterMap.get(firstLetter) || new Set();
+        letterSet.add(normalizedWord);
+        setFirstLetterMap(new Map(firstLetterMap.set(firstLetter, letterSet)));
+      }
+    }
+  };
+
   useEffect(() => {
     loadLexiconData()
       .then(({ lexicon, firstLetterMap }) => {
@@ -113,8 +165,11 @@ function App() {
                       </td>
                       <td className="vote-column">
                         <VoteDisplay
+                          word={prefix}
                           yesVotes={lexicon?.get(prefix)?.yesVotes || 0}
                           noVotes={lexicon?.get(prefix)?.noVotes || 0}
+                          userVote={lexicon?.get(prefix)?.userVote}
+                          onVoteSubmitted={(vote) => updateLocalVote(prefix, vote)}
                         />
                       </td>
                     </tr>
@@ -132,8 +187,11 @@ function App() {
                         </td>
                         <td className="vote-column">
                           <VoteDisplay
+                            word={word}
                             yesVotes={lexicon?.get(word)?.yesVotes || 0}
                             noVotes={lexicon?.get(word)?.noVotes || 0}
+                            userVote={lexicon?.get(word)?.userVote}
+                            onVoteSubmitted={(vote) => updateLocalVote(word, vote)}
                           />
                         </td>
                       </tr>
@@ -160,8 +218,11 @@ function App() {
                             </td>
                             <td className="vote-column">
                               <VoteDisplay
+                                word={word}
                                 yesVotes={lexicon?.get(word)?.yesVotes || 0}
                                 noVotes={lexicon?.get(word)?.noVotes || 0}
+                                userVote={lexicon?.get(word)?.userVote}
+                                onVoteSubmitted={(vote) => updateLocalVote(word, vote)}
                               />
                             </td>
                           </tr>

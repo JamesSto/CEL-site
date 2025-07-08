@@ -37,7 +37,7 @@ def load_user_votes_from_db():
         
     except Exception as e:
         print(f"Error loading votes from database: {e}")
-        user_votes = {}
+        raise e
 
 def update_user_votes_cache(word, old_vote=None, new_vote=None):
     """Update in-memory cache when votes change"""
@@ -61,15 +61,32 @@ def update_user_votes_cache(word, old_vote=None, new_vote=None):
 
 @app.route('/user_votes')
 def get_user_votes():
-    print("GET /user_votes - Endpoint hit!")
+    user_identifier = request.args.get('user_identifier')
+    print(f"GET /user_votes - Endpoint hit! user_identifier={user_identifier}")
     
-    # Convert to CSV format: word,yes_votes,no_votes
-    csv_lines = ["word,yes_votes,no_votes"]
+    if not user_identifier:
+        print("GET /user_votes - Error: Missing user_identifier parameter")
+        return jsonify({"status": "error", "message": "Missing required parameter: user_identifier"}), 400
+    
+    # Get user's specific votes
+    user_specific_votes = {}
+    user_vote_results = WordVote.query.filter_by(user_identifier=user_identifier).all()
+    for vote in user_vote_results:
+        user_specific_votes[vote.word] = 'yes' if vote.vote == 1 else 'no'
+
+    # Convert to CSV format: word,yes_votes,no_votes,user_vote
+    csv_lines = ["word,yes_votes,no_votes,user_vote"]
     for word, votes in user_votes.items():
-        csv_lines.append(f"{word},{votes['y']},{votes['n']}")
+        user_vote = user_specific_votes.get(word, '')
+        csv_lines.append(f"{word},{votes['y']},{votes['n']},{user_vote}")
+    
+    # Add any words that user voted on but aren't in aggregated data
+    for word, user_vote in user_specific_votes.items():
+        if word not in user_votes:
+            csv_lines.append(f"{word},0,0,{user_vote}")
     
     csv_content = "\n".join(csv_lines)
-    print(f"Returning CSV data for {len(user_votes)} words")
+    print(f"Returning CSV data for {len(user_votes)} words (user-specific: {len(user_specific_votes)})")
     
     return Response(csv_content, mimetype='text/csv')
 
@@ -118,7 +135,10 @@ def submit_vote():
             word=word
         ).first()
         
+        old_vote_value = None
         if existing_vote:
+            # Store old vote value before updating
+            old_vote_value = existing_vote.vote
             # Update existing vote
             existing_vote.vote = vote_value
             existing_vote.timestamp = db.func.now()
@@ -136,7 +156,6 @@ def submit_vote():
         db.session.commit()
         
         # Update in-memory cache
-        old_vote_value = existing_vote.vote if existing_vote else None
         update_user_votes_cache(word, old_vote_value, vote_value)
         
         return jsonify({"status": "success", "message": f"Vote for '{word}' recorded"})

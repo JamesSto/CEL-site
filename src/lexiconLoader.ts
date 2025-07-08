@@ -1,5 +1,6 @@
 import Papa from "papaparse";
 import axios from "axios";
+import { getUserIdentifier } from "./userIdentification";
 
 const axiosApi = axios.create({
   baseURL: import.meta.env.BASE_URL
@@ -9,6 +10,7 @@ export interface WordData {
   word: string;
   yesVotes: number;
   noVotes: number;
+  userVote?: 'yes' | 'no' | '';
 }
 
 export interface LexiconData {
@@ -18,10 +20,14 @@ export interface LexiconData {
 
 export async function loadLexiconData(): Promise<LexiconData> {
   try {
-    // Load both base CEL votes and user votes
+    const userIdentifier = getUserIdentifier();
+    
+    // Load both base CEL votes and user votes (with user-specific data)
     const [celResponse, userResponse] = await Promise.all([
       axiosApi.get('cel_votes.csv'),
-      axiosApi.get('api/user_votes')
+      axiosApi.get('api/user_votes', { 
+        params: { user_identifier: userIdentifier } 
+      })
     ]);
 
     const celCsvText = celResponse.data;
@@ -30,8 +36,8 @@ export async function loadLexiconData(): Promise<LexiconData> {
     // Parse base CEL votes
     const baseLexicon = await parseCSV(celCsvText);
     
-    // Parse user votes
-    const userVotes = await parseCSV(userCsvText);
+    // Parse user votes (includes user-specific vote data)
+    const userVotes = await parseUserVotesCSV(userCsvText);
 
     // Merge base votes with user votes
     const combinedWordMap = new Map<string, WordData>();
@@ -46,7 +52,8 @@ export async function loadLexiconData(): Promise<LexiconData> {
       combinedWordMap.set(word, { 
         word, 
         yesVotes: combinedYes, 
-        noVotes: combinedNo 
+        noVotes: combinedNo,
+        userVote: userVoteData?.userVote || ''
       });
 
       addToLetterMap(letterMap, word);
@@ -58,7 +65,8 @@ export async function loadLexiconData(): Promise<LexiconData> {
         combinedWordMap.set(word, { 
           word, 
           yesVotes: userVoteData.yesVotes, 
-          noVotes: userVoteData.noVotes 
+          noVotes: userVoteData.noVotes,
+          userVote: userVoteData.userVote || ''
         });
 
         addToLetterMap(letterMap, word);
@@ -100,10 +108,56 @@ function parseCSV(csvText: string): Promise<Map<string, WordData>> {
   });
 }
 
+function parseUserVotesCSV(csvText: string): Promise<Map<string, WordData>> {
+  return new Promise((resolve, reject) => {
+    const wordMap = new Map<string, WordData>();
+    
+    Papa.parse(csvText, {
+      header: true,
+      complete: (results) => {
+        results.data.forEach((row: any) => {
+          const word = row.word?.trim().toLowerCase();
+          if (word) {
+            const yesVotes = parseInt(row.yes_votes) || 0;
+            const noVotes = parseInt(row.no_votes) || 0;
+            const userVote = row.user_vote?.trim() || '';
+            wordMap.set(word, { word, yesVotes, noVotes, userVote });
+          }
+        });
+        resolve(wordMap);
+      },
+      error: (error: any) => {
+        reject(error);
+      }
+    });
+  });
+}
+
 function addToLetterMap(letterMap: Map<string, Set<string>>, word: string) {
   const firstLetter = word[0];
   if (!letterMap.has(firstLetter)) {
     letterMap.set(firstLetter, new Set());
   }
   letterMap.get(firstLetter)!.add(word);
+}
+
+export async function submitVote(word: string, vote: 'yes' | 'no'): Promise<void> {
+  try {
+    const userIdentifier = getUserIdentifier();
+    
+    const response = await axiosApi.post('api/vote', {
+      word: word.toLowerCase().trim(),
+      vote: vote,
+      user_identifier: userIdentifier
+    });
+
+    if (response.data.status !== 'success') {
+      throw new Error(response.data.message || 'Vote submission failed');
+    }
+
+    console.log(`Vote submitted: ${word} - ${vote}`);
+  } catch (error) {
+    console.error('Error submitting vote:', error);
+    throw error;
+  }
 }
