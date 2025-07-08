@@ -1,6 +1,9 @@
 import sys
 from collections import defaultdict
-from flask import Flask, jsonify, request
+
+from flask import Flask, jsonify, request, Response
+from sqlalchemy import func
+
 from db import db
 from models.word_vote import WordVote
 
@@ -18,9 +21,6 @@ def load_user_votes_from_db():
     print("Loading user votes from database...")
     
     try:
-        # Use SQL to aggregate votes by word - much more efficient
-        from sqlalchemy import func
-        
         # Query to get vote counts grouped by word
         results = db.session.query(
             WordVote.word,
@@ -59,9 +59,9 @@ def update_user_votes_cache(word, old_vote=None, new_vote=None):
         else:
             user_votes[word]['n'] += 1
 
-@app.route('/api/user_votes')
+@app.route('/user_votes')
 def get_user_votes():
-    print("GET /api/user_votes - Endpoint hit!")
+    print("GET /user_votes - Endpoint hit!")
     
     # Convert to CSV format: word,yes_votes,no_votes
     csv_lines = ["word,yes_votes,no_votes"]
@@ -71,10 +71,9 @@ def get_user_votes():
     csv_content = "\n".join(csv_lines)
     print(f"Returning CSV data for {len(user_votes)} words")
     
-    from flask import Response
     return Response(csv_content, mimetype='text/csv')
 
-@app.route('/api/vote', methods=['POST'])
+@app.route('/vote', methods=['POST'])
 def submit_vote():
     data = request.get_json()
     
@@ -157,4 +156,4 @@ if __name__ == '__main__':
     with app.app_context():
         load_user_votes_from_db()
     
-    app.run(debug=True, host='127.0.0.1', port=5000)
+    app.run(host="0.0.0.0", debug=True, port=8000)
