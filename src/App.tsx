@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { CheckIcon, XMarkIcon } from "@heroicons/react/20/solid";
 import { ArrowPathIcon } from "@heroicons/react/24/outline";
 import { distance } from "fastest-levenshtein";
+import Papa from "papaparse";
 import "./App.css";
 
 const NUM_AUTOCOMPLETES = 10;
@@ -14,32 +15,39 @@ function App() {
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    fetch(`${import.meta.env.BASE_URL}cel.txt`)
+    fetch(`${import.meta.env.BASE_URL}cel_votes.csv`)
       .then((r) => r.text())
-      .then((t) => {
-        const words = t
-          .split("\n")
-          .map((w) => w.trim().toLowerCase())
-          .filter(Boolean);
+      .then((csvText) => {
+        Papa.parse(csvText, {
+          header: true,
+          complete: (results) => {
+            const words = results.data
+              .map((row: any) => row.word?.trim().toLowerCase())
+              .filter(Boolean);
 
-        // Create main lexicon
-        const set = new Set(words);
-        setLexicon(set);
+            // Create main lexicon
+            const set = new Set(words);
+            setLexicon(set);
 
-        // Create first-letter map
-        const letterMap = new Map<string, Set<string>>();
-        words.forEach(word => {
-          const firstLetter = word[0];
-          if (!letterMap.has(firstLetter)) {
-            letterMap.set(firstLetter, new Set());
+            // Create first-letter map
+            const letterMap = new Map<string, Set<string>>();
+            words.forEach(word => {
+              const firstLetter = word[0];
+              if (!letterMap.has(firstLetter)) {
+                letterMap.set(firstLetter, new Set());
+              }
+              letterMap.get(firstLetter)!.add(word);
+            });
+            setFirstLetterMap(letterMap);
+
+            inputRef.current?.focus();
+          },
+          error: (error) => {
+            console.error("Error parsing CSV:", error);
           }
-          letterMap.get(firstLetter)!.add(word);
         });
-        setFirstLetterMap(letterMap);
-
-        inputRef.current?.focus();
       })
-      .catch((e) => console.error("Couldn't load CEL:", e));
+      .catch((e) => console.error("Couldn't load CEL votes:", e));
   }, []);
 
   // Calculate values directly instead of using state/effects
