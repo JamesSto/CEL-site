@@ -165,6 +165,61 @@ def submit_vote():
         print(f"Error saving vote: {e}")
         return jsonify({"status": "error", "message": "Failed to save vote"}), 500
 
+@app.route('/vote', methods=['DELETE'])
+def remove_vote():
+    data = request.get_json()
+    
+    # Validation
+    if not data:
+        print("DELETE /api/vote - Error: No JSON data provided")
+        return jsonify({"status": "error", "message": "No JSON data provided"}), 400
+    
+    word = data.get('word')
+    user_identifier = data.get('user_identifier')
+    
+    if not word:
+        print("DELETE /api/vote - Error: Missing 'word' field")
+        return jsonify({"status": "error", "message": "Missing required field: word"}), 400
+    
+    if not user_identifier:
+        print("DELETE /api/vote - Error: Missing 'user_identifier' field")
+        return jsonify({"status": "error", "message": "Missing required field: user_identifier"}), 400
+    
+    if not word.strip():
+        print("DELETE /api/vote - Error: Empty word provided")
+        return jsonify({"status": "error", "message": "Word cannot be empty"}), 400
+    
+    print(f"DELETE /api/vote - Vote removal requested: user='{user_identifier}', word='{word}'")
+    
+    try:
+        # Find existing vote
+        existing_vote = WordVote.query.filter_by(
+            user_identifier=user_identifier, 
+            word=word
+        ).first()
+        
+        if not existing_vote:
+            print(f"No vote found to remove: user={user_identifier}, word='{word}'")
+            return jsonify({"status": "error", "message": "No vote found to remove"}), 404
+        
+        # Store old vote value before deleting
+        old_vote_value = existing_vote.vote
+        
+        # Delete the vote
+        db.session.delete(existing_vote)
+        db.session.commit()
+        
+        # Update in-memory cache (remove vote)
+        update_user_votes_cache(word, old_vote_value, None)
+        
+        print(f"Vote removed: user={user_identifier}, word='{word}', old_vote={old_vote_value}")
+        return jsonify({"status": "success", "message": f"Vote for '{word}' removed"})
+        
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error removing vote: {e}")
+        return jsonify({"status": "error", "message": "Failed to remove vote"}), 500
+
 if __name__ == '__main__':
     if len(sys.argv) > 1 and sys.argv[1] == "setup":
         with app.app_context():

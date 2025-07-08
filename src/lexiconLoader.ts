@@ -161,3 +161,25 @@ export async function submitVote(word: string, vote: 'yes' | 'no'): Promise<void
     throw error;
   }
 }
+
+export async function removeVote(word: string): Promise<void> {
+  try {
+    const userIdentifier = getUserIdentifier();
+    
+    const response = await axiosApi.delete('api/vote', {
+      data: {
+        word: word.toLowerCase().trim(),
+        user_identifier: userIdentifier
+      }
+    });
+
+    if (response.data.status !== 'success') {
+      throw new Error(response.data.message || 'Vote removal failed');
+    }
+
+    console.log(`Vote removed: ${word}`);
+  } catch (error) {
+    console.error('Error removing vote:', error);
+    throw error;
+  }
+}

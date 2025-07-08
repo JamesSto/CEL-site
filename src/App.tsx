@@ -67,6 +67,33 @@ function App() {
     }
   };
 
+  const removeLocalVote = (word: string) => {
+    if (!lexicon) return;
+    
+    const normalizedWord = word.toLowerCase().trim();
+    const currentData = lexicon.get(normalizedWord);
+    
+    if (currentData && currentData.userVote) {
+      // Remove user's vote
+      let newYesVotes = currentData.yesVotes;
+      let newNoVotes = currentData.noVotes;
+      
+      if (currentData.userVote === 'yes') {
+        newYesVotes = Math.max(0, newYesVotes - 1);
+      } else if (currentData.userVote === 'no') {
+        newNoVotes = Math.max(0, newNoVotes - 1);
+      }
+      
+      const newData = {
+        ...currentData,
+        yesVotes: newYesVotes,
+        noVotes: newNoVotes,
+        userVote: ''
+      };
+      setLexicon(new Map(lexicon.set(normalizedWord, newData)));
+    }
+  };
+
   useEffect(() => {
     loadLexiconData()
       .then(({ lexicon, firstLetterMap }) => {
@@ -170,6 +197,7 @@ function App() {
                           noVotes={lexicon?.get(prefix)?.noVotes || 0}
                           userVote={lexicon?.get(prefix)?.userVote}
                           onVoteSubmitted={(vote) => updateLocalVote(prefix, vote)}
+                          onVoteRemoved={() => removeLocalVote(prefix)}
                         />
                       </td>
                     </tr>
@@ -192,6 +220,7 @@ function App() {
                             noVotes={lexicon?.get(word)?.noVotes || 0}
                             userVote={lexicon?.get(word)?.userVote}
                             onVoteSubmitted={(vote) => updateLocalVote(word, vote)}
+                            onVoteRemoved={() => removeLocalVote(word)}
                           />
                         </td>
                       </tr>
@@ -223,6 +252,7 @@ function App() {
                                 noVotes={lexicon?.get(word)?.noVotes || 0}
                                 userVote={lexicon?.get(word)?.userVote}
                                 onVoteSubmitted={(vote) => updateLocalVote(word, vote)}
+                                onVoteRemoved={() => removeLocalVote(word)}
                               />
                             </td>
                           </tr>
