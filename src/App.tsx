@@ -127,15 +127,15 @@ function App() {
                 <table className="matches-table">
                   <tbody>
                     <tr>
-                      <td>
-                        <a href={makeScrabbleLink(input)} target="_blank" rel="noopener">
-                          {input}
-                        </a>
-                      </td>
                       <td className="check-column">
                         <span className={isValid ? "check valid" : "check invalid"}>
                           {isValid ? <CheckIcon /> : <XMarkIcon />}
                         </span>
+                      </td>
+                      <td>
+                        <a href={makeScrabbleLink(input)} target="_blank" rel="noopener">
+                          {input}
+                        </a>
                       </td>
                       <td className="vote-column">
                         <VoteDisplay
@@ -146,15 +146,15 @@ function App() {
                     </tr>
                     {matches.map((word) => (
                       <tr key={word}>
-                        <td>
-                          <a href={makeScrabbleLink(word)} target="_blank" rel="noopener">
-                            {word}
-                          </a>
-                        </td>
                         <td className="check-column">
                           <span className="check valid">
                             <CheckIcon />
                           </span>
+                        </td>
+                        <td>
+                          <a href={makeScrabbleLink(word)} target="_blank" rel="noopener">
+                            {word}
+                          </a>
                         </td>
                         <td className="vote-column">
                           <VoteDisplay
@@ -174,15 +174,15 @@ function App() {
                       <tbody>
                         {suggestions.map((word) => (
                           <tr key={word}>
-                            <td>
-                              <a href={makeScrabbleLink(word)} target="_blank" rel="noopener">
-                                {word}
-                              </a>
-                            </td>
                             <td className="check-column">
                               <span className="check valid">
                                 <CheckIcon />
                               </span>
+                            </td>
+                            <td>
+                              <a href={makeScrabbleLink(word)} target="_blank" rel="noopener">
+                                {word}
+                              </a>
                             </td>
                             <td className="vote-column">
                               <VoteDisplay

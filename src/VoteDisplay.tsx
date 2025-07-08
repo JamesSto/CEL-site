@@ -8,13 +8,17 @@ interface VoteDisplayProps {
 export default function VoteDisplay({ yesVotes, noVotes }: VoteDisplayProps) {
   return (
     <div className="vote-display">
-      <span className="vote-count yes-votes">
-        <HandThumbUpIcon className="vote-icon" />
-        {yesVotes}
+      <span className="vote-count">
+        <span className="vote-thumb yes-votes">
+          <HandThumbUpIcon />
+        </span>
+        <span className="vote-number">{yesVotes}</span>
       </span>
-      <span className="vote-count no-votes">
-        <HandThumbDownIcon className="vote-icon" />
-        {noVotes}
+      <span className="vote-count">
+        <span className="vote-thumb no-votes">
+          <HandThumbDownIcon />
+        </span>
+        <span className="vote-number">{noVotes}</span>
       </span>
     </div>
   );

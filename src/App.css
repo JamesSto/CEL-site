@@ -21,24 +21,45 @@ body {
   align-items: center;
   gap: 0.25rem;
   font-size: 0.875rem;
+  min-width: 2.5rem;
 }
 
-.vote-icon {
-  width: 1rem;
-  height: 1rem;
+.vote-thumb {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  flex-shrink: 0;
 }
 
-.yes-votes {
+.vote-thumb svg {
+  width: 16px;
+  height: 16px;
+}
+
+.vote-thumb.yes-votes {
+  background: #e6ffed;
   color: #1a7f37;
+  /* border: 1px solid #1a7f37; */
 }
 
-.no-votes {
+.vote-thumb.no-votes {
+  background: #ffebeb;
   color: #d0332b;
+  /* border: 1px solid #d0332b; */
+}
+
+.vote-number {
+  min-width: 1.5rem;
+  text-align: left;
 }
 
 .vote-column {
   text-align: right;
   white-space: nowrap;
+  width: 1px;
 }
 
 .site-max {
@@ -128,6 +149,7 @@ body {
 .valid {
   background: #e6ffed;
   color: #1a7f37;
+  border: 1px solid #1a7f37;
 }
 
 .invalid {
@@ -220,7 +242,7 @@ body {
 }
 
 .matches-table td {
-  padding: 0.5rem 1rem;
+  padding: 0.5rem 0.5rem 0.5rem 0.8rem;
 }
 
 .matches-table td a {
