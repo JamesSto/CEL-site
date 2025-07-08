@@ -9,6 +9,38 @@ body {
   color: #222;
 }
 
+/* Vote display styles */
+.vote-display {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.vote-count {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.875rem;
+}
+
+.vote-icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.yes-votes {
+  color: #1a7f37;
+}
+
+.no-votes {
+  color: #d0332b;
+}
+
+.vote-column {
+  text-align: right;
+  white-space: nowrap;
+}
+
 .site-max {
   max-width: 800px;
   margin: 0 auto;

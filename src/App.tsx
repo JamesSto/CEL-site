@@ -3,13 +3,20 @@ import { CheckIcon, XMarkIcon } from "@heroicons/react/20/solid";
 import { ArrowPathIcon } from "@heroicons/react/24/outline";
 import { distance } from "fastest-levenshtein";
 import Papa from "papaparse";
+import VoteDisplay from "./VoteDisplay";
 import "./App.css";
 
 const NUM_AUTOCOMPLETES = 10;
 const NUM_SUGGESTIONS = 5;
 
+interface WordData {
+  word: string;
+  yesVotes: number;
+  noVotes: number;
+}
+
 function App() {
-  const [lexicon, setLexicon] = useState<Set<string> | null>(null);
+  const [lexicon, setLexicon] = useState<Map<string, WordData> | null>(null);
   const [firstLetterMap, setFirstLetterMap] = useState<Map<string, Set<string>> | null>(null);
   const [input, setInput] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -21,28 +28,31 @@ function App() {
         Papa.parse(csvText, {
           header: true,
           complete: (results) => {
-            const words = results.data
-              .map((row: any) => row.word?.trim().toLowerCase())
-              .filter(Boolean);
-
-            // Create main lexicon
-            const set = new Set(words);
-            setLexicon(set);
-
-            // Create first-letter map
+            const wordMap = new Map<string, WordData>();
             const letterMap = new Map<string, Set<string>>();
-            words.forEach(word => {
-              const firstLetter = word[0];
-              if (!letterMap.has(firstLetter)) {
-                letterMap.set(firstLetter, new Set());
-              }
-              letterMap.get(firstLetter)!.add(word);
-            });
-            setFirstLetterMap(letterMap);
 
+            results.data.forEach((row: any) => {
+              const word = row.word?.trim().toLowerCase();
+              if (word) {
+                const yesVotes = parseInt(row.yes_votes) || 0;
+                const noVotes = parseInt(row.no_votes) || 0;
+                
+                wordMap.set(word, { word, yesVotes, noVotes });
+
+                // Create first-letter map
+                const firstLetter = word[0];
+                if (!letterMap.has(firstLetter)) {
+                  letterMap.set(firstLetter, new Set());
+                }
+                letterMap.get(firstLetter)!.add(word);
+              }
+            });
+
+            setLexicon(wordMap);
+            setFirstLetterMap(letterMap);
             inputRef.current?.focus();
           },
-          error: (error) => {
+          error: (error: any) => {
             console.error("Error parsing CSV:", error);
           }
         });
@@ -57,8 +67,8 @@ function App() {
   const matches =
     !lexicon || !input
       ? []
-      : Array.from(lexicon)
-        .filter((word) => word.startsWith(prefix))
+      : Array.from(lexicon.keys())
+        .filter((word) => word.startsWith(prefix) && word !== prefix)
         .slice(0, NUM_AUTOCOMPLETES)
         .sort();
 
@@ -127,6 +137,12 @@ function App() {
                           {isValid ? <CheckIcon /> : <XMarkIcon />}
                         </span>
                       </td>
+                      <td className="vote-column">
+                        <VoteDisplay
+                          yesVotes={lexicon?.get(prefix)?.yesVotes || 0}
+                          noVotes={lexicon?.get(prefix)?.noVotes || 0}
+                        />
+                      </td>
                     </tr>
                     {matches.map((word) => (
                       <tr key={word}>
@@ -139,6 +155,12 @@ function App() {
                           <span className="check valid">
                             <CheckIcon />
                           </span>
+                        </td>
+                        <td className="vote-column">
+                          <VoteDisplay
+                            yesVotes={lexicon?.get(word)?.yesVotes || 0}
+                            noVotes={lexicon?.get(word)?.noVotes || 0}
+                          />
                         </td>
                       </tr>
                     ))}
@@ -161,6 +183,12 @@ function App() {
                               <span className="check valid">
                                 <CheckIcon />
                               </span>
+                            </td>
+                            <td className="vote-column">
+                              <VoteDisplay
+                                yesVotes={lexicon?.get(word)?.yesVotes || 0}
+                                noVotes={lexicon?.get(word)?.noVotes || 0}
+                              />
                             </td>
                           </tr>
                         ))}
