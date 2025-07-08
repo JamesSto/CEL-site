@@ -34,6 +34,7 @@ def parse_word_votes(input_file, output_file):
             content = content.removeprefix('wordvote')
             content = content.removeprefix('Wordvote')
             content = content.removeprefix('vote')
+            content = content.removeprefix('vot')
             content = content.removeprefix('Vote')
             content = content.strip()
             word = content.split()[0]
@@ -43,9 +44,12 @@ def parse_word_votes(input_file, output_file):
             if len(word) > 20:
                 print(f"skipping due to word length > 20: {content}\n")
                 continue
-            if word == 'omg':
+            if word in ['omg', 'boatymcboatface']:
                 continue
-            word = word.removesuffix(",")
+            word = word.removesuffix(",").removesuffix("...").removesuffix(":")
+            if not word.isalpha():
+                print(f"skipping due to non-alphabetic characters: {content}\n")
+                continue
             parsed_data.append({'word': word, 'yes_votes': yes_votes, 'no_votes': no_votes})
 
     if not parsed_data:
