@@ -1,0 +1,5 @@
+# Discord token file
+discord_token.txt
+
+# Python virtual environment
+venv/
