@@ -62,7 +62,10 @@ function App() {
 
   // Calculate values directly instead of using state/effects
   const prefix = input.toLowerCase();
-  const isValid = input === "" ? null : lexicon?.has(prefix) ?? false;
+  const wordExists = lexicon?.has(prefix) ?? false;
+  const wordData = lexicon?.get(prefix);
+  const hasMoreNoVotes = wordData && wordData.noVotes > wordData.yesVotes;
+  const isValid = input === "" ? null : wordExists && !hasMoreNoVotes;
 
   const matches =
     !lexicon || !input
@@ -76,7 +79,7 @@ function App() {
     !lexicon || !firstLetterMap || !input || matches.length > 3 || isValid
       ? []
       : Array.from(firstLetterMap.get(prefix[0]) ?? [])
-        .filter(word => !matches.includes(word)) // Remove words already in matches
+        .filter(word => !matches.includes(word) && word !== prefix) // Remove words already in matches and current input
         .map((word) => ({
           word,
           distance: distance(prefix, word) / prefix.length,
@@ -88,6 +91,12 @@ function App() {
 
   const makeScrabbleLink = (word: string) =>
     `https://scrabble.merriam.com/finder/${word}`;
+
+  const getWordValidation = (word: string) => {
+    const wordData = lexicon?.get(word);
+    if (!wordData) return false;
+    return wordData.noVotes <= wordData.yesVotes;
+  };
 
   return (
     <>
@@ -147,8 +156,8 @@ function App() {
                     {matches.map((word) => (
                       <tr key={word}>
                         <td className="check-column">
-                          <span className="check valid">
-                            <CheckIcon />
+                          <span className={getWordValidation(word) ? "check valid" : "check invalid"}>
+                            {getWordValidation(word) ? <CheckIcon /> : <XMarkIcon />}
                           </span>
                         </td>
                         <td>
@@ -175,8 +184,8 @@ function App() {
                         {suggestions.map((word) => (
                           <tr key={word}>
                             <td className="check-column">
-                              <span className="check valid">
-                                <CheckIcon />
+                              <span className={getWordValidation(word) ? "check valid" : "check invalid"}>
+                                {getWordValidation(word) ? <CheckIcon /> : <XMarkIcon />}
                               </span>
                             </td>
                             <td>
