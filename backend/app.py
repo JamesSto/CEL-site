@@ -58,6 +58,10 @@ def update_user_votes_cache(word, old_vote=None, new_vote=None):
             user_votes[word]['y'] += 1
         else:
             user_votes[word]['n'] += 1
+    
+    # Remove word from memory if it has no votes
+    if user_votes[word]['y'] == 0 and user_votes[word]['n'] == 0:
+        del user_votes[word]
 
 @app.route('/user_votes')
 def get_user_votes():

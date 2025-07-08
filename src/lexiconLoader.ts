@@ -11,11 +11,11 @@ export interface WordData {
   yesVotes: number;
   noVotes: number;
   userVote?: 'yes' | 'no' | '';
+  isInOriginalCEL: boolean;
 }
 
 export interface LexiconData {
   lexicon: Map<string, WordData>;
-  firstLetterMap: Map<string, Set<string>>;
 }
 
 export async function loadLexiconData(): Promise<LexiconData> {
@@ -41,7 +41,6 @@ export async function loadLexiconData(): Promise<LexiconData> {
 
     // Merge base votes with user votes
     const combinedWordMap = new Map<string, WordData>();
-    const letterMap = new Map<string, Set<string>>();
 
     // Start with all base words
     baseLexicon.forEach((wordData, word) => {
@@ -53,10 +52,9 @@ export async function loadLexiconData(): Promise<LexiconData> {
         word, 
         yesVotes: combinedYes, 
         noVotes: combinedNo,
-        userVote: userVoteData?.userVote || ''
+        userVote: userVoteData?.userVote || '',
+        isInOriginalCEL: true
       });
-
-      addToLetterMap(letterMap, word);
     });
 
     // Add any user-voted words that aren't in base CEL
@@ -66,16 +64,14 @@ export async function loadLexiconData(): Promise<LexiconData> {
           word, 
           yesVotes: userVoteData.yesVotes, 
           noVotes: userVoteData.noVotes,
-          userVote: userVoteData.userVote || ''
+          userVote: userVoteData.userVote || '',
+          isInOriginalCEL: false
         });
-
-        addToLetterMap(letterMap, word);
       }
     });
 
     return {
-      lexicon: combinedWordMap,
-      firstLetterMap: letterMap
+      lexicon: combinedWordMap
     };
 
   } catch (error) {
@@ -96,7 +92,7 @@ function parseCSV(csvText: string): Promise<Map<string, WordData>> {
           if (word) {
             const yesVotes = parseInt(row.yes_votes) || 0;
             const noVotes = parseInt(row.no_votes) || 0;
-            wordMap.set(word, { word, yesVotes, noVotes });
+            wordMap.set(word, { word, yesVotes, noVotes, isInOriginalCEL: true });
           }
         });
         resolve(wordMap);
@@ -121,7 +117,7 @@ function parseUserVotesCSV(csvText: string): Promise<Map<string, WordData>> {
             const yesVotes = parseInt(row.yes_votes) || 0;
             const noVotes = parseInt(row.no_votes) || 0;
             const userVote = row.user_vote?.trim() || '';
-            wordMap.set(word, { word, yesVotes, noVotes, userVote });
+            wordMap.set(word, { word, yesVotes, noVotes, userVote, isInOriginalCEL: false });
           }
         });
         resolve(wordMap);
@@ -133,13 +129,6 @@ function parseUserVotesCSV(csvText: string): Promise<Map<string, WordData>> {
   });
 }
 
-function addToLetterMap(letterMap: Map<string, Set<string>>, word: string) {
-  const firstLetter = word[0];
-  if (!letterMap.has(firstLetter)) {
-    letterMap.set(firstLetter, new Set());
-  }
-  letterMap.get(firstLetter)!.add(word);
-}
 
 export async function submitVote(word: string, vote: 'yes' | 'no'): Promise<void> {
   try {

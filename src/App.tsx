@@ -11,9 +11,21 @@ const NUM_SUGGESTIONS = 5;
 
 function App() {
   const [lexicon, setLexicon] = useState<Map<string, WordData> | null>(null);
-  const [firstLetterMap, setFirstLetterMap] = useState<Map<string, Set<string>> | null>(null);
   const [input, setInput] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Create firstLetterMap from lexicon
+  const firstLetterMap = lexicon ? (() => {
+    const map = new Map<string, Set<string>>();
+    for (const word of lexicon.keys()) {
+      const firstLetter = word[0];
+      if (!map.has(firstLetter)) {
+        map.set(firstLetter, new Set());
+      }
+      map.get(firstLetter)!.add(word);
+    }
+    return map;
+  })() : null;
 
   const updateLocalVote = (word: string, vote: 'yes' | 'no') => {
     if (!lexicon) return;
@@ -53,17 +65,10 @@ function App() {
         word: normalizedWord,
         yesVotes: vote === 'yes' ? 1 : 0,
         noVotes: vote === 'no' ? 1 : 0,
-        userVote: vote
+        userVote: vote,
+        isInOriginalCEL: false
       };
       setLexicon(new Map(lexicon.set(normalizedWord, newData)));
-      
-      // Also add to first letter map
-      if (firstLetterMap) {
-        const firstLetter = normalizedWord[0];
-        const letterSet = firstLetterMap.get(firstLetter) || new Set();
-        letterSet.add(normalizedWord);
-        setFirstLetterMap(new Map(firstLetterMap.set(firstLetter, letterSet)));
-      }
     }
   };
 
@@ -84,21 +89,27 @@ function App() {
         newNoVotes = Math.max(0, newNoVotes - 1);
       }
       
-      const newData = {
-        ...currentData,
-        yesVotes: newYesVotes,
-        noVotes: newNoVotes,
-        userVote: ''
-      };
-      setLexicon(new Map(lexicon.set(normalizedWord, newData)));
+      // Remove word from lexicon if it has no votes and wasn't in original CEL
+      if (newYesVotes === 0 && newNoVotes === 0 && !currentData.isInOriginalCEL) {
+        const newLexicon = new Map(lexicon);
+        newLexicon.delete(normalizedWord);
+        setLexicon(newLexicon);
+      } else {
+        const newData = {
+          ...currentData,
+          yesVotes: newYesVotes,
+          noVotes: newNoVotes,
+          userVote: '' as const
+        };
+        setLexicon(new Map(lexicon.set(normalizedWord, newData)));
+      }
     }
   };
 
   useEffect(() => {
     loadLexiconData()
-      .then(({ lexicon, firstLetterMap }) => {
+      .then(({ lexicon }) => {
         setLexicon(lexicon);
-        setFirstLetterMap(firstLetterMap);
         inputRef.current?.focus();
       })
       .catch((e) => console.error("Couldn't load lexicon data:", e));
