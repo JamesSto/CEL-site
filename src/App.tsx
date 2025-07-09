@@ -3,7 +3,7 @@ import { CheckIcon, XMarkIcon } from "@heroicons/react/20/solid";
 import { ArrowPathIcon } from "@heroicons/react/24/outline";
 import { distance } from "fastest-levenshtein";
 import VoteDisplay from "./VoteDisplay";
-import { loadLexiconData, type WordData } from "./lexiconLoader";
+import { loadLexiconData, type WordData, CEL_VOTE_WORTH } from "./lexiconLoader";
 import "./App.css";
 
 const NUM_AUTOCOMPLETES = 10;
@@ -64,7 +64,7 @@ function App() {
       const newData = {
         word: normalizedWord,
         yesVotes: vote === 'yes' ? 1 : 0,
-        noVotes: vote === 'no' ? 1 : 0,
+        noVotes: CEL_VOTE_WORTH + (vote === 'no' ? 1 : 0),
         userVote: vote,
         isInOriginalCEL: false
       };
@@ -204,9 +204,7 @@ function App() {
                       <td className="vote-column">
                         <VoteDisplay
                           word={prefix}
-                          yesVotes={lexicon?.get(prefix)?.yesVotes || 0}
-                          noVotes={lexicon?.get(prefix)?.noVotes || 0}
-                          userVote={lexicon?.get(prefix)?.userVote}
+                          lexiconEntry={lexicon?.get(prefix)}
                           onVoteSubmitted={(vote) => updateLocalVote(prefix, vote)}
                           onVoteRemoved={() => removeLocalVote(prefix)}
                         />
@@ -227,9 +225,7 @@ function App() {
                         <td className="vote-column">
                           <VoteDisplay
                             word={word}
-                            yesVotes={lexicon?.get(word)?.yesVotes || 0}
-                            noVotes={lexicon?.get(word)?.noVotes || 0}
-                            userVote={lexicon?.get(word)?.userVote}
+                            lexiconEntry={lexicon?.get(word)}
                             onVoteSubmitted={(vote) => updateLocalVote(word, vote)}
                             onVoteRemoved={() => removeLocalVote(word)}
                           />
@@ -259,9 +255,7 @@ function App() {
                             <td className="vote-column">
                               <VoteDisplay
                                 word={word}
-                                yesVotes={lexicon?.get(word)?.yesVotes || 0}
-                                noVotes={lexicon?.get(word)?.noVotes || 0}
-                                userVote={lexicon?.get(word)?.userVote}
+                                lexiconEntry={lexicon?.get(word)}
                                 onVoteSubmitted={(vote) => updateLocalVote(word, vote)}
                                 onVoteRemoved={() => removeLocalVote(word)}
                               />

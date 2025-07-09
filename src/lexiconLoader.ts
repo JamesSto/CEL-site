@@ -2,6 +2,8 @@ import Papa from "papaparse";
 import axios from "axios";
 import { getUserIdentifier } from "./userIdentification";
 
+export const CEL_VOTE_WORTH = 5;
+
 const axiosApi = axios.create({
   baseURL: import.meta.env.BASE_URL
 });
@@ -63,7 +65,7 @@ export async function loadLexiconData(): Promise<LexiconData> {
         combinedWordMap.set(word, { 
           word, 
           yesVotes: userVoteData.yesVotes, 
-          noVotes: userVoteData.noVotes,
+          noVotes: userVoteData.noVotes + CEL_VOTE_WORTH,
           userVote: userVoteData.userVote || '',
           isInOriginalCEL: false
         });

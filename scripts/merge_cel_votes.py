@@ -2,6 +2,8 @@ import csv
 import os
 from pathlib import Path
 
+CEL_VOTE_WORTH = 5
+
 def merge_cel_votes():
     """
     Merges the CEL word list with Discord vote data into a single CSV file.
@@ -63,6 +65,11 @@ def merge_cel_votes():
             yes_votes = 0
             no_votes = 0
         
+        if word in cel_words:
+            yes_votes += CEL_VOTE_WORTH  # Add 5 to yes votes for CEL words
+        else:
+            no_votes += CEL_VOTE_WORTH  # Add 5 to no votes for non-CEL words
+
         merged_data.append({
             'word': word,
             'yes_votes': yes_votes,
