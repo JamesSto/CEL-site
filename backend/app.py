@@ -11,57 +11,6 @@ app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///user_votes.db"
 db.init_app(app)
 
-# In-memory store for user votes (loaded from database, acts as write-through cache)
-# Format: {'word': {'y': count, 'n': count}}
-user_votes = defaultdict(lambda: {'y': 0, 'n': 0})
-
-def load_user_votes_from_db():
-    """Load all votes from database into memory on startup using SQL aggregation"""
-    global user_votes
-    print("Loading user votes from database...")
-    
-    try:
-        # Query to get vote counts grouped by word
-        results = db.session.query(
-            WordVote.word,
-            func.sum(WordVote.vote).label('yes_count'),
-            func.count(WordVote.vote).label('total_count')
-        ).group_by(WordVote.word).all()
-        
-        user_votes = defaultdict(lambda: {'y': 0, 'n': 0})
-        for word, yes_count, total_count in results:
-            no_count = total_count - yes_count
-            user_votes[word] = {'y': yes_count, 'n': no_count}
-        
-        print(f"Loaded {len(user_votes)} words with votes from database")
-        
-    except Exception as e:
-        print(f"Error loading votes from database: {e}")
-        raise e
-
-def update_user_votes_cache(word, old_vote=None, new_vote=None):
-    """Update in-memory cache when votes change"""
-    global user_votes
-    
-    # No need to check if word exists - defaultdict handles it
-    
-    # Remove old vote
-    if old_vote is not None:
-        if old_vote == 1:
-            user_votes[word]['y'] = max(0, user_votes[word]['y'] - 1)
-        else:
-            user_votes[word]['n'] = max(0, user_votes[word]['n'] - 1)
-    
-    # Add new vote
-    if new_vote is not None:
-        if new_vote == 1:
-            user_votes[word]['y'] += 1
-        else:
-            user_votes[word]['n'] += 1
-    
-    # Remove word from memory if it has no votes
-    if user_votes[word]['y'] == 0 and user_votes[word]['n'] == 0:
-        del user_votes[word]
 
 @app.route('/user_votes')
 def get_user_votes():
@@ -72,6 +21,13 @@ def get_user_votes():
         print("GET /user_votes - Error: Missing user_identifier parameter")
         return jsonify({"status": "error", "message": "Missing required parameter: user_identifier"}), 400
     
+    # Get aggregated vote counts from database
+    results = db.session.query(
+        WordVote.word,
+        func.sum(WordVote.vote).label('yes_count'),
+        func.count(WordVote.vote).label('total_count')
+    ).group_by(WordVote.word).all()
+    
     # Get user's specific votes
     user_specific_votes = {}
     user_vote_results = WordVote.query.filter_by(user_identifier=user_identifier).all()
@@ -80,17 +36,19 @@ def get_user_votes():
 
     # Convert to CSV format: word,yes_votes,no_votes,user_vote
     csv_lines = ["word,yes_votes,no_votes,user_vote"]
-    for word, votes in user_votes.items():
+    for word, yes_count, total_count in results:
+        no_count = total_count - yes_count
         user_vote = user_specific_votes.get(word, '')
-        csv_lines.append(f"{word},{votes['y']},{votes['n']},{user_vote}")
+        csv_lines.append(f"{word},{yes_count},{no_count},{user_vote}")
     
     # Add any words that user voted on but aren't in aggregated data
+    aggregated_words = {word for word, _, _ in results}
     for word, user_vote in user_specific_votes.items():
-        if word not in user_votes:
+        if word not in aggregated_words:
             csv_lines.append(f"{word},0,0,{user_vote}")
     
     csv_content = "\n".join(csv_lines)
-    print(f"Returning CSV data for {len(user_votes)} words (user-specific: {len(user_specific_votes)})")
+    print(f"Returning CSV data for {len(results)} words (user-specific: {len(user_specific_votes)})")
     
     return Response(csv_content, mimetype='text/csv')
 
@@ -159,9 +117,6 @@ def submit_vote():
         
         db.session.commit()
         
-        # Update in-memory cache
-        update_user_votes_cache(word, old_vote_value, vote_value)
-        
         return jsonify({"status": "success", "message": f"Vote for '{word}' recorded"})
         
     except Exception as e:
@@ -213,9 +168,6 @@ def remove_vote():
         db.session.delete(existing_vote)
         db.session.commit()
         
-        # Update in-memory cache (remove vote)
-        update_user_votes_cache(word, old_vote_value, None)
-        
         print(f"Vote removed: user={user_identifier}, word='{word}', old_vote={old_vote_value}")
         return jsonify({"status": "success", "message": f"Vote for '{word}' removed"})
         
@@ -229,9 +181,5 @@ if __name__ == '__main__':
         with app.app_context():
             db.create_all()
         sys.exit(0)
-    
-    # Load votes from database into memory on startup
-    with app.app_context():
-        load_user_votes_from_db()
     
     app.run(host="0.0.0.0", debug=True, port=8000)
