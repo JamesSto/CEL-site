@@ -1,5 +1,5 @@
 import { HandThumbUpIcon, HandThumbDownIcon } from "@heroicons/react/20/solid";
-import { submitVote, removeVote, type WordData, CEL_VOTE_WORTH } from "./lexiconLoader";
+import { submitVote, removeVote, type WordData } from "./lexiconLoader";
 import { useState } from "react";
 
 interface VoteDisplayProps {
@@ -10,10 +10,6 @@ interface VoteDisplayProps {
 }
 
 export default function VoteDisplay({ word, lexiconEntry, onVoteSubmitted, onVoteRemoved }: VoteDisplayProps) {
-  const yesVotes = lexiconEntry?.yesVotes || 0;
-  // If the lexicon entry doesn't exist, that means this is a new word. That means it wasn't in the CEL, so we should
-  // give it its constant worth of no votes.
-  const noVotes = lexiconEntry?.noVotes ?? CEL_VOTE_WORTH;
   const userVote = lexiconEntry?.userVote;
 
   const [isVoting, setIsVoting] = useState(false);
@@ -58,7 +54,6 @@ export default function VoteDisplay({ word, lexiconEntry, onVoteSubmitted, onVot
         >
           <HandThumbUpIcon />
         </button>
-        <span className="vote-number">{yesVotes}</span>
       </span>
       <span className="vote-count">
         <button 
@@ -69,7 +64,6 @@ export default function VoteDisplay({ word, lexiconEntry, onVoteSubmitted, onVot
         >
           <HandThumbDownIcon />
         </button>
-        <span className="vote-number">{noVotes}</span>
       </span>
     </div>
   );
