@@ -333,9 +333,9 @@ function App() {
                 Scrabble dictionary (mostly) contains esoterica.
               </dd>
               <dd>
-                It also gathers many initial votes from Squardle Discord users,
+                It also gathers many initial votes from Squaredle Discord users,
                 who vote on whether a word should be required or "bonus" for the{" "}
-                <a href="https://squaredle.app/">Squardle</a> game.
+                <a href="https://squaredle.app/">Squaredle</a> game.
               </dd>
               <dd>
                 Both these sources and other user votes are combined to decide
@@ -348,10 +348,8 @@ function App() {
                 want to play Scrabble and not run the risk of a challenge
                 failing because that random 4 letters someone put down is an{" "}
                 <a href="https://www.merriam-webster.com/dictionary/cuif">
-                  obscure alternate spelling of a Scottish insult. Or
+                  obscure alternate spelling of a Scottish insult</a>. Or
                   Bananagrams, or Quiddler, or any number of games.
-                </a>
-                .
               </dd>
               <dt>Why doesn't it have [word]?</dt>
               <dd>
